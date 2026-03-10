@@ -78,6 +78,7 @@ with open(snakefile_path, 'r') as f:
     snakefile_content = f.read()
 
 module_blocks = []
+all_inputs = []
 for submodule_name in submodules:
     module_blocks.append(f"""\
 module {submodule_name}:
@@ -88,10 +89,15 @@ use rule * from {submodule_name} as {submodule_name}_*
 # some rules in the module are shell commands which call a script assuming the workdir is the other workdir. use symlinks for scripts to fix.
 CreateSymlinksOfDir1ContentsIntoDir2("module_workflows/{submodule_name}/scripts/", "scripts/")
 """)
+    all_inputs.append(f"        rules.{submodule_name}_all.input,")
 
 snakefile_content = snakefile_content.replace(
     '# SUBMODULE_BLOCKS_PLACEHOLDER',
     '\n'.join(module_blocks)
+)
+snakefile_content = snakefile_content.replace(
+    '        # ALL_INPUTS_PLACEHOLDER',
+    '\n'.join(all_inputs)
 )
 with open(snakefile_path, 'w') as f:
     f.write(snakefile_content)

@@ -4,11 +4,10 @@
 configfile: "config/config.yaml"
 include: "rules/common.smk"
 
-# SUBMODULE_BLOCKS_PLACEHOLDER
-
 rule all:
     input:
-        # The first rule should define the default target files
-        # Subsequent target rules can be specified below. They should start with all_*.
+        # ALL_INPUTS_PLACEHOLDER
+
+# SUBMODULE_BLOCKS_PLACEHOLDER
 
 include: "rules/other.smk"
