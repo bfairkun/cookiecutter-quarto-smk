@@ -4,10 +4,11 @@
 configfile: "config/config.yaml"
 include: "rules/common.smk"
 
+# SUBMODULE_BLOCKS_PLACEHOLDER
+
 rule all:
+    default_target: True
     input:
         # ALL_INPUTS_PLACEHOLDER
-
-# SUBMODULE_BLOCKS_PLACEHOLDER
 
 include: "rules/other.smk"
