@@ -72,23 +72,51 @@ else:
     sys.exit(1)
 
 
+# Generate Snakefile module blocks
+snakefile_path = os.path.join('code', 'Snakefile')
+with open(snakefile_path, 'r') as f:
+    snakefile_content = f.read()
+
+module_blocks = []
+for submodule_name in submodules:
+    module_blocks.append(f"""\
+module {submodule_name}:
+    snakefile: "module_workflows/{submodule_name}/Snakefile"
+    prefix: "{submodule_name}"
+    config: config["{submodule_name}"]
+use rule * from {submodule_name} as {submodule_name}_*
+# some rules in the module are shell commands which call a script assuming the workdir is the other workdir. use symlinks for scripts to fix.
+CreateSymlinksOfDir1ContentsIntoDir2("module_workflows/{submodule_name}/scripts/", "scripts/")
+""")
+
+snakefile_content = snakefile_content.replace(
+    '# SUBMODULE_BLOCKS_PLACEHOLDER',
+    '\n'.join(module_blocks)
+)
+with open(snakefile_path, 'w') as f:
+    f.write(snakefile_content)
+
+# Generate config.yaml submodule sections
 config_path = os.path.join('code', 'config', 'config.yaml')
 with open(config_path, 'r') as f:
-    config_lines = f.readlines()
+    config_content = f.read()
 
-new_config_lines = []
-submodules = {{ cookiecutter.submodules }}  # This will be replaced by the cookiecutter context
+config_blocks = []
+for submodule_name in submodules:
+    sub_cfg_path = os.path.join('code', 'module_workflows', submodule_name, 'config', 'config.yaml')
+    sub_cfg_content = ''
+    if os.path.exists(sub_cfg_path):
+        with open(sub_cfg_path, 'r') as sub_cfg:
+            sub_cfg_content = indent_lines(sub_cfg.read(), indent='    ')
+    config_blocks.append(f"""\
+{submodule_name}:
+    ## Define {submodule_name} specific-config values that will overwrite workflow-wide config values if they are defined above
+    ## If the {submodule_name} requires config values (eg from a config.yaml), must copy paste those values here if not already defined above
+{sub_cfg_content}""")
 
-for line in config_lines:
-    new_config_lines.append(line)
-    for submodule in submodules:
-        if line.strip().startswith(f"{submodule}:"):
-            # Look for the submodule config file
-            sub_cfg_path = os.path.join('code', 'module_workflows', submodule, 'config', 'config.yaml')
-            if os.path.exists(sub_cfg_path):
-                with open(sub_cfg_path, 'r') as sub_cfg:
-                    indented = indent_lines(sub_cfg.read(), indent='    ')
-                    new_config_lines.append(indented)
-
+config_content = config_content.replace(
+    '# SUBMODULE_CONFIG_PLACEHOLDER',
+    '\n'.join(config_blocks)
+)
 with open(config_path, 'w') as f:
-    f.writelines(new_config_lines)
+    f.write(config_content)

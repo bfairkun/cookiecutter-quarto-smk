@@ -4,15 +4,7 @@
 configfile: "config/config.yaml"
 include: "rules/common.smk"
 
-{% for submodule in cookiecutter.submodules %}
-module {{ submodule }}:
-    snakefile: "module_workflows/{{ submodule }}/Snakefile"
-    prefix: "{{ submodule }}"
-    config: config["{{ submodule }}"]
-use rule * from {{ submodule }} as {{ submodule }}_*
-# some rules in the module are shell commands which call a script assuming the workdir is the other workdir. use symlinks for scripts to fix.
-CreateSymlinksOfDir1ContentsIntoDir2("module_workflows/{{ submodule }}/scripts/", "scripts/")
-{% endfor %}
+# SUBMODULE_BLOCKS_PLACEHOLDER
 
 rule all:
     input:

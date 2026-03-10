@@ -5,8 +5,4 @@
 samples: config/samples.tsv
 
 
-{% for submodule in cookiecutter.submodules %}
-{{ submodule }}:
-    ## Define {{ submodule }} specific-config values that will overwrite workflow-wide config values if they are defined above
-    ## If the {{ submodule }} requires config values (eg from a config.yaml), must copy paste those values here if not already defined above
-{% endfor %}
+# SUBMODULE_CONFIG_PLACEHOLDER
