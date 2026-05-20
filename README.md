@@ -23,11 +23,14 @@ After filling the prompts, this will create a project template with the followin
 
 ```
 {{ cookiecutter.repo_name }}/
+├── AGENTS.md                 # Project conventions for AI coding agents (cross-vendor)
+├── CLAUDE.md                 # One-liner: @AGENTS.md — Claude Code follows the reference
 ├── analysis
 │   ├── about.qmd
 │   ├── index.qmd
 │   ├── license.qmd
-│   └── _quarto.yml
+│   ├── _quarto.yml
+│   └── scripts              # Ad-hoc notebook helper scripts (not in Snakemake)
 ├── code
 │   ├── config
 │   │   ├── config.yaml
@@ -75,6 +78,13 @@ After filling the prompts, this will create a project template with the followin
 - Use the `analysis` directory to write Quarto (`.qmd`), Rmarkdown (`.Rmd`), and Jupyter notebook (`.ipynb`) files to document your thoughts and analysis of processed data. If these notebook files only read in the data files tracked in `output` or `data`, it should be easy for anyone to edit or re-run your notebooks by cloning this repo (without needing to run Snakemake or do the computationally intensive things).
     - To render notebooks into a static site and host on GitHub, use Quarto to render `.qmd`, `.Rmd`, and `.ipynb` files into HTML and place them into `docs`. The `docs/assets` directory can be used to save images that can also be referenced in notebooks and their rendered HTMLs. To enable GitHub Pages hosting, add the project to GitHub and modify the project settings to build a site from the `/docs` folder (in the "Pages" section of project settings).
     - Occasionally, you may write notebooks that need access to large untracked files output by Snakemake. In this case, it is helpful to follow a naming convention to specify which notebooks need access to these large files, so it is clear what notebooks can be run simply by cloning the repo, versus needing access to large untracked files.
+- **Ad-hoc notebook helper scripts** (one-off data-prep that does not belong in the Snakemake pipeline — e.g. a per-barcode pileup that only a specific notebook depends on) go in `analysis/scripts/`, named after the notebook they pair with (e.g. `analysis/scripts/20260514_variant_exploration_pileup_per_barcode.py`). The script docstring should state which notebook it pairs with and include the exact CLI used. The notebook should reference the script by path and show the command that produced the input files. Outputs of these scripts go to `code/scratch/` (regeneratable) or `output/` (committed). If a helper later turns out to be reusable, promote it to `code/scripts/` and wire it into a `code/rules/*.smk` rule.
+
+---
+
+### Conventions for AI coding agents
+
+Every project scaffolded by this template includes an `AGENTS.md` at the project root that documents project conventions for AI coding agents (Claude Code, OpenAI Codex CLI, Aider, etc.). `AGENTS.md` is a cross-vendor convention now read by most agent tooling; the template also ships a `CLAUDE.md` whose contents are just `@AGENTS.md` so Claude Code follows the same file. Edit `AGENTS.md` in a project to override or extend the defaults for that project.
 
 ---
 
