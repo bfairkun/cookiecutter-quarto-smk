@@ -1,20 +1,24 @@
 ---
 title: "Home"
+listing:
+  contents:
+    - "*.qmd"
+    - "*.Rmd"
+    - "*.ipynb"
+  exclude:
+    filename:
+      - "index.qmd"
+      - "about.qmd"
+      - "license.qmd"
+  type: table
+  fields: [title, date, description]
+  sort: "date desc"
+  sort-ui: true
+  filter-ui: true
 ---
 
 Welcome to your Quarto project!
 
-Below is a list of all notebooks (`.qmd`, `.Rmd`, and `.ipynb` files) in the `analysis/` directory:
-
-```{r}
-#| echo: false
-#| results: 'asis'
-notebooks <- list.files(pattern = "\\.(qmd|Rmd|ipynb)$", path = ".", full.names = FALSE)
-notebooks <- notebooks[!notebooks %in% c("index.qmd", "index.Rmd", "index.ipynb")]
-htmls <- sub("\\.(qmd|Rmd|ipynb)$", ".html", notebooks, ignore.case = TRUE)
-if (length(htmls) == 0) {
-  cat("No rendered HTMLs found.")
-} else {
-  cat(paste0("- [", htmls, "](", htmls, ")\n"), sep = "")
-}
-```
+Below are all notebooks (`.qmd`, `.Rmd`, `.ipynb`) in the `analysis/` directory. This
+table is generated natively by Quarto from each notebook's YAML front matter (`title`,
+`date`, `description`) — no R or Python required to render this page.

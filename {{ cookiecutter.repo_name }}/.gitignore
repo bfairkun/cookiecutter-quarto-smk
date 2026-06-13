@@ -9,3 +9,8 @@ analysis/*png
 analysis/*html
 analysis/*_cache
 analysis/site_libs
+
+# Quarto build artifacts
+.quarto/
+analysis/.quarto/
+analysis/*_files/

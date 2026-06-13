@@ -1,1 +1,12 @@
-# conda environments needed for the workflow should be stored here.
+# Example rule-specific conda env. Reference it from a Snakemake rule with:
+#     rule foo:
+#         conda: "envs/myenv.yaml"
+#         shell: "samtools ..."
+# Keep one small env per tool/rule group rather than a single monolithic env; name the
+# file after the tool or rule it serves.
+name: myenv
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - samtools

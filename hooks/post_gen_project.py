@@ -58,7 +58,7 @@ make_conda_env = '{{ cookiecutter.make_conda_env }}'
 if make_conda_env == 'y':
     conda_executable = FindCondaExecutable()
     if not conda_executable:
-        print('ERROR: could not find conda executable' % make_conda_env)
+        print('ERROR: could not find conda executable')
         sys.exit(1)
     print("Attempting to create conda environment from code/envs/{{ cookiecutter.repo_name }}.yaml")
     sys.exit(

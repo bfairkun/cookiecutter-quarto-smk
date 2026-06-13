@@ -4,10 +4,10 @@
   "username": "bfairkun",
   "project_name": "My project",
   "repo_name": "{{ cookiecutter.project_name.lower().replace(' ', '_') }}",
-  "min_snakemake_version": "7.32.0",
+  "min_snakemake_version": "7.32.4",
   "make_conda_env": ["n", "y"],
   "license": ["MIT", "BSD", "Apache Software License 2.0", "None"],
-  "slurm_parition": "broadwl",
+  "slurm_partition": "broadwl",
   " ": "This is a dummy cookiecutter vairable that I use to give some description to the next cookiecutter variable...\n\n The next cookiecutter variable is called 'submodules'. Here you can specify snakemake submodules as a dictionary with name of submodule (only word characters allowed, [A-za-z0-9_]) and url of remote repo\n\nexample: {\"rna_seq\": {\"url\": \"git@github.com:bfairkun/snakemake-workflow_rna-seq.git\", \"branch\": \"main\"}, \"another_git_submodule\": {\"url\": \"https://github.com/user/mod.git\"}} \n\nLeave blank (default) or supply and empty dict to not add any submodules\n\nReady to define submodules? Press enter to continue.",
   "submodules": {}
 }

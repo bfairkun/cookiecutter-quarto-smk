@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import sys
 import filecmp
 import pathlib
 
@@ -24,9 +25,6 @@ def has_differences(dcmp):
         return any([has_differences(subdcmp) for subdcmp in dcmp.subdirs.values()])
     except NotADirectoryError:
         return True
-
-# Add code for function definitions and other things that must be defined prior
-# to rest of workflow (eg custom snakemake input functions)
 
 def CreateSymlinksOfDir1ContentsIntoDir2(Dir1, Dir2):
     """

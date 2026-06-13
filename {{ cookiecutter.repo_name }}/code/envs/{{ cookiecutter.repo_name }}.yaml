@@ -1,21 +1,83 @@
 name: {{ cookiecutter.repo_name }}
+# Tip: on memory-limited login nodes `conda env create` may get OOM-killed during the
+# solve; micromamba uses far less memory for the same solve:
+#     micromamba env create -f envs/{{ cookiecutter.repo_name }}.yaml --yes
 channels:
   - conda-forge
   - bioconda
+  - r
 dependencies:
-  - python=3.9   # or 2.7
-  - bcftools
-  - bedtools
-  - biopython
-  - fastx_toolkit
-  - multiqc
+  # Jupyter / notebook
+  - jupyterlab
+  - jupyter
+  - ipykernel
+  - ipython
+  - ipywidgets
+  - nbconvert
+  - nbformat
+  - nbclient
+  - papermill
+
+  # Core scientific
   - numpy
   - pandas
-  - picard
-  - qualimap
-  - samtools
   - scipy
+  - matplotlib
+  - seaborn
+  - plotnine
+  - altair
+  - bokeh
+  - plotly
+
+  # Data / IO
+  - polars
+  - pyarrow
+  - openpyxl
+  - xarray
+  - dask
+
+  # Stats / ML
+  - scikit-learn
+  - statsmodels
+  - arviz
+  - pymc>=5
+  - pip
+  - pytensor
+  - tensorflow
+
+  # Bioinformatics
+  - biopython
+  - bedtools
+  - pybedtools
+  - pysam
+  - pygenometracks
+  - bedparse
+  - pyfaidx
+  - gffutils
+  - pybigwig
+  - bioconda::igv-reports
+  - bioconda::spliceai
+  - bioconda::htseq
+  - bioconda::blast=2.16.0
   - snakemake={{ cookiecutter.min_snakemake_version }}
-  - star=2.6.1b
-  - ucsc-bedgraphtobigwig
-  - ucsc-liftover
+  - bioconda::hgvs
+  - bioconda::logomaker
+  - bioconda::gseapy  # GO/pathway enrichment (ORA + GSEA)
+
+  # Utilities
+  - jinja2
+  - pytest
+  - tqdm
+  - future
+  - pycryptodome
+  - ca-certificates
+  - certifi
+  - openssl
+  - pyopenssl>=24  # avoid drift vs cryptography
+  - natsort
+  - anndata
+
+  - pip:
+    - my-utils==0.1.0
+    - alphagenome==0.5.1
+    - pikachu-chem==1.1.5

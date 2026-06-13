@@ -1,4 +1,4 @@
-# cookiecutter-snakemake-workflow
+# cookiecutter-quarto-smk
 
 Cookiecutter template for Snakemake workflows and [Quarto](https://quarto.org/) documentation.  
 This project template is inspired by the [cookiecutter snakemake project template](https://github.com/snakemake-workflows/cookiecutter-snakemake-workflow) and the suggested project structure for [workflowr](https://jdblischak.github.io/workflowr/articles/wflow-01-getting-started.html).  
@@ -16,7 +16,7 @@ pip install cookiecutter
 
 Start creating a snakemake-workflow from cookiecutter:
 ```
-cookiecutter https://github.com/bfairkun/cookiecutter-wflowR-smk.git
+cookiecutter https://github.com/bfairkun/cookiecutter-quarto-smk.git
 ```
 
 After filling the prompts, this will create a project template with the following directory structure:
