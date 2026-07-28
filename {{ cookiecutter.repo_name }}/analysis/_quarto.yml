@@ -13,5 +13,9 @@ website:
 format:
   html:
     theme: cosmo
+    css: styles.css
     toc: true
     embed-resources: true
+    # Reader-comment widget: master panel on every page, plus optional
+    # ::: {.comment-box} markers placed by hand. See _comment_widget.html.
+    include-after-body: _comment_widget.html

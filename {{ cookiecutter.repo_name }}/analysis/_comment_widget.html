@@ -1,0 +1,271 @@
+<!--
+  Reader comments for Quarto HTML notebooks.
+
+  Wired in project-wide via analysis/_quarto.yml:
+
+      format:
+        html:
+          include-after-body: _comment_widget.html
+
+  Every rendered page then gets a master comment panel at the bottom, with no
+  per-notebook markup. To invite comment at a specific spot as well, drop a
+  marker anywhere in the .qmd:
+
+      ::: {.comment-box}
+      :::
+
+      ::: {.comment-box data-prompt="Does this match the numbers in your sheet?"}
+      :::
+
+      ::: {.comment-box data-anchor="Walk 7" data-prompt="Confirm the exon numbering."}
+      :::
+
+  data-anchor defaults to the nearest preceding heading. All boxes share one
+  comment store, so "Download annotated copy" from the panel captures the lot.
+
+  Comments live inside the HTML file itself (the JSON block below). "Download
+  annotated copy" serializes the live DOM to a new self-contained .html — the
+  browser's own Save Page As re-saves the original source and would lose them.
+  Nothing is sent anywhere; there is no server.
+-->
+
+<script type="application/json" id="rc-data">[]</script>
+<div id="rc-panel"></div>
+
+<style>
+#rc-panel, .comment-box { max-width: 900px; margin-left: auto; margin-right: auto;
+  font-size: 0.94rem; }
+#rc-panel { margin-top: 3rem; margin-bottom: 3rem; padding: 0 1rem; }
+.comment-box { margin: 1.25rem auto; }
+.rc-card { border: 1px solid #d0d7de; border-radius: 8px; background: #f6f8fa; padding: 0.9rem 1rem; }
+.comment-box .rc-card { border-left: 3px solid #2166ac; }
+.rc-h { font-weight: 600; margin-bottom: 0.5rem; }
+.rc-prompt { font-weight: 600; color: #17518c; margin-bottom: 0.5rem; }
+.rc-sub { font-size: 0.85rem; color: #57606a; margin-bottom: 0.6rem; }
+.rc-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; }
+.rc-row > * { flex: 1 1 12rem; }
+#rc-panel input, #rc-panel textarea, .comment-box input, .comment-box textarea {
+  width: 100%; padding: 0.4rem 0.55rem; border: 1px solid #d0d7de; border-radius: 6px;
+  font: inherit; background: #fff; color: inherit; box-sizing: border-box; }
+#rc-panel textarea, .comment-box textarea { resize: vertical; }
+.rc-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+.rc-actions button { padding: 0.4rem 0.85rem; border: 1px solid #d0d7de; border-radius: 6px;
+  background: #fff; font: inherit; cursor: pointer; }
+.rc-actions button:hover { background: #eaeef2; }
+.rc-actions button.rc-primary { background: #2166ac; color: #fff; border-color: #2166ac; }
+.rc-actions button.rc-primary:hover { background: #17518c; }
+.rc-list { list-style: none; padding: 0; margin: 0.75rem 0 0; }
+.rc-list li { border-left: 3px solid #2166ac; background: #fff; border-radius: 0 6px 6px 0;
+  padding: 0.5rem 0.7rem; margin-bottom: 0.5rem; }
+.comment-box .rc-list li { background: #f6f8fa; }
+.rc-meta { font-size: 0.82rem; color: #57606a; margin-bottom: 0.2rem; }
+.rc-anchor-tag { font-style: italic; }
+.rc-body { white-space: pre-wrap; }
+.rc-del { float: right; border: none; background: none; color: #57606a; cursor: pointer;
+  padding: 0 0.2rem; font-size: 1rem; line-height: 1; }
+.rc-group { margin-top: 0.9rem; }
+.rc-group-h { font-size: 0.86rem; font-weight: 600; color: #57606a;
+  text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+.rc-empty { color: #57606a; font-style: italic; }
+@media (prefers-color-scheme: dark) {
+  .rc-card { background: #22272e; border-color: #444c56; }
+  .rc-list li { background: #2d333b; border-color: #444c56; }
+  #rc-panel input, #rc-panel textarea, .comment-box input, .comment-box textarea,
+  .rc-actions button { background: #2d333b; border-color: #444c56; color: #adbac7; }
+  .rc-meta, .rc-sub, .rc-del, .rc-group-h { color: #909dab; }
+  .rc-prompt { color: #6cb6ff; }
+}
+</style>
+
+<script>
+(function () {
+  var store = document.getElementById('rc-data');
+  var panel = document.getElementById('rc-panel');
+  if (!store || !panel) return;
+
+  var KEY = 'rc:' + (location.pathname.split('/').pop() || 'page');
+  var NAMEKEY = 'rc:reader-name';
+  var comments = [];
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+    });
+  }
+  function parse(t) { try { var v = JSON.parse(t); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
+  function ls(fn, dflt) { try { return fn(); } catch (e) { return dflt; } }
+  function boxes() { return Array.prototype.slice.call(document.querySelectorAll('.comment-box')); }
+
+  // Comments baked into the file win; local storage contributes anything this
+  // browser added that has not been downloaded yet. Dedupe on id.
+  function load() {
+    var seen = {}, out = [];
+    parse(store.textContent)
+      .concat(parse(ls(function () { return localStorage.getItem(KEY); }, '[]') || '[]'))
+      .forEach(function (c) { if (c && c.id && !seen[c.id]) { seen[c.id] = 1; out.push(c); } });
+    out.sort(function (a, b) { return (a.time || '').localeCompare(b.time || ''); });
+    comments = out;
+  }
+
+  function persist() {
+    store.textContent = JSON.stringify(comments, null, 1);
+    ls(function () { localStorage.setItem(KEY, JSON.stringify(comments)); });
+  }
+
+  function readerName() { return ls(function () { return localStorage.getItem(NAMEKEY); }, '') || ''; }
+  function rememberName(n) { if (n) ls(function () { localStorage.setItem(NAMEKEY, n); }); }
+
+  // A box's anchor: explicit attribute, else the nearest heading above it.
+  function anchorOf(box) {
+    var a = box.getAttribute('data-anchor') || box.getAttribute('anchor');
+    if (a) return a;
+    var el = box, h = null;
+    while (el && !h) {
+      var p = el.previousElementSibling;
+      while (p && !h) {
+        if (/^H[1-6]$/.test(p.tagName)) h = p;
+        else { var inner = p.querySelectorAll ? p.querySelectorAll('h1,h2,h3,h4,h5,h6') : []; if (inner.length) h = inner[inner.length - 1]; }
+        p = p.previousElementSibling;
+      }
+      el = el.parentElement;
+    }
+    return h ? h.textContent.trim().replace(/\s+/g, ' ') : 'General';
+  }
+
+  function commentLi(c, showAnchor) {
+    return '<li data-id="' + esc(c.id) + '">'
+      + '<button class="rc-del" title="Delete" data-del="' + esc(c.id) + '">&times;</button>'
+      + '<div class="rc-meta"><strong>' + esc(c.name || 'Anonymous') + '</strong> &middot; '
+      + esc((c.time || '').replace('T', ' ').slice(0, 16))
+      + (showAnchor && c.anchor ? ' &middot; <span class="rc-anchor-tag">' + esc(c.anchor) + '</span>' : '')
+      + '</div><div class="rc-body">' + esc(c.text) + '</div></li>';
+  }
+
+  function formMarkup(anchor, prompt, primaryLabel) {
+    return (prompt ? '<div class="rc-prompt">' + esc(prompt) + '</div>' : '')
+      + '<div class="rc-row"><input class="rc-name" type="text" placeholder="Your name" '
+      + 'value="' + esc(readerName()) + '" autocomplete="name"></div>'
+      + '<textarea class="rc-text" rows="3" placeholder="Comment on ' + esc(anchor) + '..."></textarea>'
+      + '<div class="rc-actions"><button type="button" class="rc-add rc-primary">' + esc(primaryLabel) + '</button></div>';
+  }
+
+  // Rebuilding innerHTML rather than appending keeps mounting idempotent: a
+  // downloaded copy already contains the rendered boxes, and reopening it must
+  // not produce a second form.
+  function renderBoxes() {
+    boxes().forEach(function (box) {
+      var anchor = anchorOf(box);
+      box.setAttribute('data-anchor', anchor);
+      var mine = comments.filter(function (c) { return c.anchor === anchor; });
+      box.innerHTML = '<div class="rc-card">'
+        + formMarkup(anchor, box.getAttribute('data-prompt'), 'Add comment')
+        + (mine.length ? '<ul class="rc-list">' + mine.map(function (c) { return commentLi(c, false); }).join('') + '</ul>' : '')
+        + '</div>';
+    });
+  }
+
+  function renderPanel() {
+    var groups = {}, order = [];
+    comments.forEach(function (c) {
+      var k = c.anchor || 'General';
+      if (!groups[k]) { groups[k] = []; order.push(k); }
+      groups[k].push(c);
+    });
+    var body = order.length
+      ? order.map(function (k) {
+          return '<div class="rc-group"><div class="rc-group-h">' + esc(k) + '</div>'
+            + '<ul class="rc-list">' + groups[k].map(function (c) { return commentLi(c, false); }).join('') + '</ul></div>';
+        }).join('')
+      : '<p class="rc-empty">No comments yet.</p>';
+
+    panel.innerHTML = '<div class="rc-card">'
+      + '<div class="rc-h">Reader comments <span class="rc-count">('
+      + comments.length + ')</span></div>'
+      + '<div class="rc-sub">Add a comment below, or use the boxes placed through the document. '
+      + 'Then press <strong>Download annotated copy</strong> to save a new self-contained HTML file '
+      + 'with the comments inside it, and send that back. Reopening it shows the comments in place. '
+      + 'Nothing is uploaded anywhere.</div>'
+      + formMarkup('this page', '', 'Add comment')
+      + '<div class="rc-actions">'
+      + '<button type="button" id="rc-save">Download annotated copy (.html)</button>'
+      + '<button type="button" id="rc-json">Download comments only (.json)</button></div>'
+      + body + '</div>';
+  }
+
+  function render() { renderBoxes(); renderPanel(); }
+
+  function add(scope) {
+    var text = scope.querySelector('.rc-text').value.trim();
+    if (!text) return;
+    var name = (scope.querySelector('.rc-name').value || '').trim();
+    rememberName(name);
+    comments.push({
+      id: 'c' + Date.now() + Math.random().toString(36).slice(2, 7),
+      name: name || 'Anonymous',
+      anchor: scope.classList && scope.classList.contains('comment-box')
+        ? scope.getAttribute('data-anchor')
+        : (scope.closest && scope.closest('.comment-box') ? scope.closest('.comment-box').getAttribute('data-anchor') : 'General'),
+      text: text,
+      time: new Date().toISOString()
+    });
+    persist(); render();
+  }
+
+  function download(content, filename, mime) {
+    var blob = new Blob([content], { type: mime });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+  function slug(s) { return (s || 'reader').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
+  function base() { return (location.pathname.split('/').pop() || 'notebook.html').replace(/\.html?$/i, ''); }
+
+  document.addEventListener('click', function (ev) {
+    var t = ev.target;
+    if (!t || !t.classList) return;
+
+    if (t.classList.contains('rc-add')) {
+      var box = t.closest('.comment-box');
+      add(box || panel);
+      return;
+    }
+    var del = t.getAttribute && t.getAttribute('data-del');
+    if (del) {
+      comments = comments.filter(function (c) { return c.id !== del; });
+      persist(); render();
+      return;
+    }
+    if (t.id === 'rc-save') {
+      persist();
+      var clone = document.documentElement.cloneNode(true);
+      // textarea values are not reflected in serialized HTML, but clear any
+      // default text so a reopened copy never starts with someone's draft
+      Array.prototype.forEach.call(clone.querySelectorAll('textarea'), function (ta) { ta.textContent = ''; });
+      download('<!DOCTYPE html>\n' + clone.outerHTML,
+        base() + '_comments_' + slug(readerName()) + '.html', 'text/html;charset=utf-8');
+      return;
+    }
+    if (t.id === 'rc-json') {
+      persist();
+      download(JSON.stringify(comments, null, 2),
+        base() + '_comments_' + slug(readerName()) + '.json', 'application/json');
+    }
+  });
+
+  // keep the name field in sync across every box
+  document.addEventListener('input', function (ev) {
+    if (ev.target && ev.target.classList && ev.target.classList.contains('rc-name')) {
+      var v = ev.target.value;
+      rememberName(v.trim());
+      Array.prototype.forEach.call(document.querySelectorAll('.rc-name'), function (el) {
+        if (el !== ev.target) el.value = v;
+      });
+    }
+  });
+
+  load();
+  render();
+})();
+</script>

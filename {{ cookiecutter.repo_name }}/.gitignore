@@ -7,6 +7,8 @@
 analysis/figure
 analysis/*png
 analysis/*html
+# ...but the reader-comment widget is source, not a build artifact
+!analysis/_comment_widget.html
 analysis/*_cache
 analysis/site_libs
 
