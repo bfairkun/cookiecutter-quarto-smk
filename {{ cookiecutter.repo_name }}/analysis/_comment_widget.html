@@ -56,6 +56,9 @@
 .rc-actions button:hover { background: #eaeef2; }
 .rc-actions button.rc-primary { background: #2166ac; color: #fff; border-color: #2166ac; }
 .rc-actions button.rc-primary:hover { background: #17518c; }
+.rc-actions button.rc-danger { color: #b2182b; border-color: #e6b3ba; }
+.rc-actions button.rc-danger:hover { background: #fdecee; }
+.rc-actions button.rc-danger[data-armed="1"] { background: #b2182b; color: #fff; border-color: #b2182b; }
 .rc-list { list-style: none; padding: 0; margin: 0.75rem 0 0; }
 .rc-list li { border-left: 3px solid #2166ac; background: #fff; border-radius: 0 6px 6px 0;
   padding: 0.5rem 0.7rem; margin-bottom: 0.5rem; }
@@ -190,7 +193,8 @@
       + formMarkup('this page', '', 'Add comment')
       + '<div class="rc-actions">'
       + '<button type="button" id="rc-save">Download annotated copy (.html)</button>'
-      + '<button type="button" id="rc-json">Download comments only (.json)</button></div>'
+      + '<button type="button" id="rc-json">Download comments only (.json)</button>'
+      + '<button type="button" id="rc-clear" class="rc-danger">Clear comments on this browser</button></div>'
       + body + '</div>';
   }
 
@@ -253,6 +257,25 @@
       persist();
       download(JSON.stringify(comments, null, 2),
         base() + '_comments_' + slug(readerName()) + '.json', 'application/json');
+      return;
+    }
+    // Comments saved by this browser survive a re-render, because load() merges
+    // localStorage back in over a freshly-published (empty) file. This is the only
+    // way to drop them. Two-click confirm rather than confirm(), which would block.
+    if (t.id === 'rc-clear') {
+      if (t.getAttribute('data-armed') !== '1') {
+        t.setAttribute('data-armed', '1');
+        t.textContent = 'Click again to erase — cannot be undone';
+        setTimeout(function () {
+          t.removeAttribute('data-armed');
+          t.textContent = 'Clear comments on this browser';
+        }, 5000);
+        return;
+      }
+      ls(function () { localStorage.removeItem(KEY); });
+      comments = [];
+      store.textContent = '[]';
+      render();
     }
   });
 
