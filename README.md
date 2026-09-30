@@ -48,15 +48,7 @@ After filling the prompts, this will create a project template with the followin
 │   ├── scripts
 │   │   └── common
 │   │       └── __init__.py
-│   ├── Snakefile
-│   └── snakemake_profiles
-│       └── slurm
-│           ├── cluster-config.yaml
-│           ├── config.yaml
-│           ├── slurm-jobscript.sh
-│           ├── slurm-status.py
-│           ├── slurm-submit.py
-│           └── slurm_utils.py
+│   └── Snakefile
 ├── {{ cookiecutter.repo_name }}.Rproj
 ├── data
 │   └── README.md

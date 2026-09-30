@@ -28,7 +28,7 @@ Install snakemake and the workflow's other dependencies via conda/mamba. If cond
 
 ### Step 2: Configure workflow
 
-Configure the workflow according to your needs via editing the file `config.yaml`. Use/modify the config yaml files in the `snakemake_profiles/slurm/` profile to run on UChicago RCC Midway with slurm scheduler.
+Configure the workflow according to your needs via editing the file `config.yaml`. Cluster settings (and a shared `conda-prefix`) come from the global snakemake profiles in `~/.config/snakemake/` (e.g. `slurm_midway3`); projects don't carry their own.
 
 ### Step 3: Execute workflow
 
@@ -40,8 +40,8 @@ Execute the workflow locally via
 
     snakemake --cores $N
 
-using `$N` cores or run it in a cluster environment via the included slurm snakemake profile.
+using `$N` cores or run it on the cluster via the global slurm profile.
 
-    snakemake --profile snakemake_profiles/slurm
+    snakemake --profile slurm_midway3
 
 See the [Snakemake documentation](https://snakemake.readthedocs.io) for further details.
