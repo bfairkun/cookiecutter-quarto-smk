@@ -7,8 +7,9 @@
 analysis/figure
 analysis/*png
 analysis/*html
-# ...but the reader-comment widget is source, not a build artifact
+# ...but the reader-comment and TOC widgets are source, not build artifacts
 !analysis/_comment_widget.html
+!analysis/_toc_dropdown.html
 analysis/*_cache
 analysis/site_libs
 

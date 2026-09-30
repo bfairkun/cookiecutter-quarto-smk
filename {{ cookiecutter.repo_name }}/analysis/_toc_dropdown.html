@@ -1,0 +1,46 @@
+<!--
+Floating table-of-contents dropdown. Moves Quarto's margin TOC (nav#TOC) into a
+fixed "Contents" button at the top right, and lets the main column use the full
+page width instead of reserving a right-hand margin column.
+Wired in through `include-after-body` in _quarto.yml; needs `toc: true`.
+-->
+<style>
+  @media (min-width: 992px) {
+    #quarto-content.page-columns { display: block !important; max-width: 1500px; margin: 0 auto; padding: 0 2em; }
+  }
+  #quarto-margin-sidebar { display: none !important; }
+  #toc-dd-btn {
+    position: fixed; top: 70px; right: 16px; z-index: 2000;
+    padding: 4px 12px; font-size: 0.85rem; cursor: pointer;
+    background: #fff; border: 1px solid #bbb; border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,.15);
+  }
+  #toc-dd-panel {
+    position: fixed; top: 104px; right: 16px; z-index: 2000; display: none;
+    width: 340px; max-height: 70vh; overflow-y: auto; padding: 8px 12px;
+    background: #fff; border: 1px solid #bbb; border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,.2);
+    font-size: 0.85rem;
+  }
+  #toc-dd-panel nav#TOC { position: static !important; max-height: none !important; }
+  #toc-dd-panel ul { padding-left: 1em; }
+  #toc-dd-panel .collapse { display: block !important; }
+  #toc-dd-panel h2 { font-size: 0.95rem; margin: 0 0 4px; padding-bottom: 4px; }
+</style>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var toc = document.querySelector("nav#TOC");
+  if (!toc) return;
+  var btn = document.createElement("button");
+  btn.id = "toc-dd-btn"; btn.textContent = "Contents ▾";
+  var panel = document.createElement("div");
+  panel.id = "toc-dd-panel";
+  panel.appendChild(toc);
+  document.body.appendChild(btn); document.body.appendChild(panel);
+  btn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    panel.style.display = panel.style.display === "block" ? "none" : "block";
+  });
+  panel.addEventListener("click", function (e) { if (e.target.tagName === "A") panel.style.display = "none"; });
+  document.addEventListener("click", function (e) { if (!panel.contains(e.target)) panel.style.display = "none"; });
+  window.dispatchEvent(new Event("resize"));
+});
+</script>

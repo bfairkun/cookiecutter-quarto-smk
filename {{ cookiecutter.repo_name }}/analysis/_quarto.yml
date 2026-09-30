@@ -16,6 +16,9 @@ format:
     css: styles.css
     toc: true
     embed-resources: true
-    # Reader-comment widget: master panel on every page, plus optional
-    # ::: {.comment-box} markers placed by hand. See _comment_widget.html.
-    include-after-body: _comment_widget.html
+    include-after-body:
+      # Reader-comment widget: master panel on every page, plus optional
+      # ::: {.comment-box} markers placed by hand. See _comment_widget.html.
+      - _comment_widget.html
+      # Floating "Contents" dropdown instead of a right-margin TOC. See _toc_dropdown.html.
+      - _toc_dropdown.html
